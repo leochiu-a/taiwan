@@ -1,7 +1,6 @@
 import { Html, Line, MapControls } from "@react-three/drei";
 import { Canvas, type ThreeEvent } from "@react-three/fiber";
 import { Suspense } from "react";
-import * as THREE from "three";
 import { Beam } from "./Beam";
 import { Forest } from "./Forest";
 import type { Tree } from "./planting";
@@ -18,17 +17,6 @@ export type MapLines = {
 
 const PICK_RADIUS = 0.5;
 
-export type DragMode = "pan" | "rotate";
-
-// The primary drag (left button, one finger) does whichever the user picked; the right button does the other.
-const MOUSE_BUTTONS: Record<DragMode, { LEFT: THREE.MOUSE; MIDDLE: THREE.MOUSE; RIGHT: THREE.MOUSE }> = {
-  pan: { LEFT: THREE.MOUSE.PAN, MIDDLE: THREE.MOUSE.DOLLY, RIGHT: THREE.MOUSE.ROTATE },
-  rotate: { LEFT: THREE.MOUSE.ROTATE, MIDDLE: THREE.MOUSE.DOLLY, RIGHT: THREE.MOUSE.PAN },
-};
-const TOUCHES: Record<DragMode, { ONE: THREE.TOUCH; TWO: THREE.TOUCH }> = {
-  pan: { ONE: THREE.TOUCH.PAN, TWO: THREE.TOUCH.DOLLY_ROTATE },
-  rotate: { ONE: THREE.TOUCH.ROTATE, TWO: THREE.TOUCH.DOLLY_PAN },
-};
 /** Module-level so re-renders don't hand the controls a new target and snap the view back. */
 const START_TARGET: [number, number, number] = [0, 0, 2];
 
@@ -83,7 +71,6 @@ export function Scene({
   filter,
   picked,
   onPick,
-  dragMode,
 }: {
   terrain: Terrain;
   borders: MapLines;
@@ -92,7 +79,6 @@ export function Scene({
   filter: Filter;
   picked: Tree | null;
   onPick: (tree: Tree | null) => void;
-  dragMode: DragMode;
 }) {
   // Particles are too many to raycast; pick the nearest visible tree to where the ground was hit.
   const pick = (e: ThreeEvent<MouseEvent>) => {
@@ -129,8 +115,6 @@ export function Scene({
       <MapControls
         makeDefault
         target={START_TARGET}
-        mouseButtons={MOUSE_BUTTONS[dragMode]}
-        touches={TOUCHES[dragMode]}
         maxPolarAngle={Math.PI * 0.48}
         minDistance={3}
         maxDistance={70}

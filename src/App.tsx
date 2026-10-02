@@ -1,16 +1,11 @@
 import { type CSSProperties, useEffect, useMemo, useState } from "react";
 import { type Tree, plantForest } from "./planting";
 import { rainCaption } from "./rain";
-import { type DragMode, type MapLines, Scene } from "./Scene";
+import { type MapLines, Scene } from "./Scene";
 import { type Filter, HOTSPOTS, KINDS, SPECIES, bloomAt, isShown } from "./species";
 import { type Terrain, loadTerrain } from "./terrain";
 
 const MONTH_MAX = 12.99;
-
-const DRAG_MODES: { mode: DragMode; label: string }[] = [
-  { mode: "pan", label: "移動" },
-  { mode: "rotate", label: "旋轉" },
-];
 
 /** Seconds of autoplay per month. */
 const SECONDS_PER_MONTH = 2.5;
@@ -39,7 +34,6 @@ export default function App() {
   const [playing, setPlaying] = useState(false);
   const [filter, setFilter] = useState<Filter>(null);
   const [picked, setPicked] = useState<Tree | null>(null);
-  const [dragMode, setDragMode] = useState<DragMode>("pan");
 
   useEffect(() => {
     Promise.all([loadTerrain(), fetch("/map.json").then((r) => r.json() as Promise<MapLines>)]).then(
@@ -81,7 +75,6 @@ export default function App() {
           filter={filter}
           picked={picked}
           onPick={setPicked}
-          dragMode={dragMode}
         />
       ) : (
         <p className="loading">載入中…</p>
@@ -136,19 +129,7 @@ export default function App() {
             );
           })}
           <div className="row">
-            <div className="chips" role="group" aria-label="拖曳方式">
-              <span className="stat">拖曳：</span>
-              {DRAG_MODES.map(({ mode, label }) => (
-                <button
-                  type="button"
-                  key={mode}
-                  className={dragMode === mode ? "on" : undefined}
-                  onClick={() => setDragMode(mode)}
-                >
-                  {label}
-                </button>
-              ))}
-            </div>
+            <span className="stat">拖曳移動 · Shift＋拖曳或右鍵旋轉 · 滾輪縮放</span>
             <span className="stat">{visibleCount.toLocaleString()} 株</span>
           </div>
         </nav>
