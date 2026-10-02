@@ -1,0 +1,12 @@
+{
+  "width": 431,
+  "height": 540,
+  "kmPerCell": 0.7936703703703698,
+  "maxElevation": 3801,
+  "bounds": {
+    "west": 118.95,
+    "east": 122.3,
+    "south": 21.6,
+    "north": 25.45
+  }
+}

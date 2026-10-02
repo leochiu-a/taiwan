@@ -1,0 +1,333 @@
+:root {
+  --ink: #eef1ee;
+  --muted: #8b9791;
+  --card: rgb(18 22 24 / 0.72);
+  --line: rgb(255 255 255 / 0.08);
+  --accent: #ff7a2f;
+  font-family: "PingFang TC", "Noto Sans TC", system-ui, sans-serif;
+  color: var(--ink);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root,
+main {
+  margin: 0;
+  height: 100%;
+  overflow: hidden;
+  background: #050607;
+}
+
+.loading {
+  display: grid;
+  place-items: center;
+  height: 100%;
+  margin: 0;
+  color: var(--muted);
+}
+
+.card {
+  position: fixed;
+  background: var(--card);
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 14px 18px;
+}
+
+.card h1,
+.card h2 {
+  margin: 0;
+}
+
+.card p {
+  margin: 0;
+  line-height: 1.6;
+}
+
+.title {
+  top: 16px;
+  left: 16px;
+}
+
+.title h1 {
+  font-size: 26px;
+  line-height: 1.25;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+}
+
+.timebar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 24px 26px;
+  background: linear-gradient(to top, rgb(5 6 7 / 0.95), rgb(5 6 7 / 0));
+}
+
+.timebar output {
+  min-width: 96px;
+  font-size: 18px;
+  font-weight: 700;
+  color: #ffb347;
+  font-variant-numeric: tabular-nums;
+}
+
+.play {
+  flex: none;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 1px solid var(--accent);
+  background: none;
+  color: #ffb347;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.track {
+  position: relative;
+  flex: 1;
+}
+
+.track input {
+  -webkit-appearance: none;
+  appearance: none;
+  display: block;
+  width: 100%;
+  height: 22px;
+  margin: 0;
+  background: transparent;
+  cursor: pointer;
+}
+
+.track input::-webkit-slider-runnable-track {
+  height: 6px;
+  border-radius: 3px;
+  background: linear-gradient(to right, var(--accent) var(--progress), rgb(255 255 255 / 0.15) var(--progress));
+}
+
+.track input::-moz-range-track {
+  height: 6px;
+  border-radius: 3px;
+  background: linear-gradient(to right, var(--accent) var(--progress), rgb(255 255 255 / 0.15) var(--progress));
+}
+
+.track input::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 18px;
+  height: 18px;
+  margin-top: -6px;
+  border-radius: 50%;
+  background: #ffb347;
+  border: 3px solid #050607;
+  box-shadow: 0 0 0 1px var(--accent);
+}
+
+.track input::-moz-range-thumb {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #ffb347;
+  border: 3px solid #050607;
+}
+
+.ticks {
+  position: absolute;
+  left: 9px;
+  right: 9px;
+  top: 22px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  pointer-events: none;
+}
+
+.ticks li {
+  position: absolute;
+  transform: translateX(-50%);
+  font-size: 11px;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+.bottom {
+  position: fixed;
+  left: 50%;
+  bottom: 84px;
+  transform: translateX(-50%);
+  width: min(720px, calc(100% - 32px));
+  display: grid;
+  justify-items: center;
+  gap: 12px;
+}
+
+.caption {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 700;
+  text-align: center;
+  text-shadow: 0 2px 12px rgb(0 0 0 / 0.9);
+  pointer-events: none;
+}
+
+.controls {
+  position: static;
+  width: 100%;
+  display: grid;
+  gap: 10px;
+}
+
+.controls button {
+  font: inherit;
+  font-size: 13px;
+  color: var(--ink);
+  background: rgb(255 255 255 / 0.06);
+  border: 1px solid transparent;
+  border-radius: 8px;
+  padding: 4px 10px;
+  cursor: pointer;
+}
+
+.controls button.on {
+  background: var(--accent);
+}
+
+.controls button.outline {
+  border-color: var(--accent);
+  color: #ffb347;
+  background: none;
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+
+.controls button.group {
+  font-weight: 700;
+  min-width: 44px;
+  border-color: rgb(255 255 255 / 0.18);
+  background: none;
+}
+
+.controls button.group.on {
+  background: var(--accent);
+  border-color: transparent;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.stat {
+  font-size: 12px;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.info {
+  top: 16px;
+  right: 16px;
+  width: 280px;
+}
+
+.info h2 {
+  font-size: 20px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.info .latin {
+  font-style: italic;
+  color: var(--muted);
+  font-size: 13px;
+  margin-bottom: 8px;
+}
+
+.info .meta {
+  margin-top: 8px;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.badge {
+  font-size: 11px;
+  font-weight: 600;
+  background: var(--accent);
+  border-radius: 999px;
+  padding: 2px 8px;
+}
+
+.close {
+  position: absolute;
+  top: 8px;
+  right: 10px;
+  border: 0;
+  background: none;
+  font-size: 20px;
+  color: var(--muted);
+  cursor: pointer;
+}
+
+.county-label {
+  color: rgb(214 226 230 / 0.6);
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  white-space: nowrap;
+  text-shadow: 0 1px 6px rgb(0 0 0 / 0.95);
+  user-select: none;
+}
+
+.beam-label {
+  color: #ffe9a8;
+  font-size: 15px;
+  font-weight: 700;
+  white-space: nowrap;
+  transform: translateY(18px);
+  text-shadow: 0 1px 8px rgb(0 0 0 / 0.9);
+}
+
+@media (max-width: 640px) {
+  .title h1 {
+    font-size: 18px;
+  }
+
+  .timebar {
+    padding: 10px 16px 24px;
+    gap: 10px;
+  }
+
+  .timebar output {
+    min-width: 72px;
+    font-size: 14px;
+  }
+
+  .ticks li:nth-child(even) {
+    display: none;
+  }
+
+  .caption {
+    font-size: 16px;
+  }
+
+  .info {
+    top: auto;
+    bottom: 200px;
+    left: 16px;
+    width: auto;
+  }
+}
