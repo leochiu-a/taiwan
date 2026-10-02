@@ -16,6 +16,7 @@ pnpm dev
 | `terrain.bin`、`terrain.json` | AWS Terrarium 高程圖磚 | `node scripts/fetch-terrain.ts` |
 | `map.json` | `taiwan-atlas`（內政部縣市界） | `node scripts/build-map.ts` |
 | `trees.glb` | Blender 程式化建模 | `blender --background --factory-startup --python blender/trees.py` |
+| `cloud.png` | 分形雜訊程式產生 | `node scripts/build-cloud-texture.ts` |
 
 `map.json` 依 `terrain.json` 的範圍裁切，所以改了地形範圍要先跑 `fetch-terrain` 再跑 `build-map`。
 

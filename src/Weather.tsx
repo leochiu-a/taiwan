@@ -1,60 +1,69 @@
-import { useMemo } from "react";
+import { Cloud, Clouds } from "@react-three/drei";
+import { useFrame } from "@react-three/fiber";
+import { Suspense, useMemo, useRef } from "react";
 import * as THREE from "three";
-import { time, viewportHeight } from "./foliageMaterial";
+import { time } from "./foliageMaterial";
 import { mulberry32 } from "./planting";
 import { type Terrain, elevationAt, gridToWorld } from "./terrain";
 import { rainAt } from "./rain";
 
-const MIST_PATCHES = 260;
+const CLOUD_BANKS = 8;
+const CLOUD_SPACING = 7;
 const RAIN_STREAKS = 7000;
 const RAIN_TOP = 9;
 
-/** Slow-drifting soft sprites that hang over the mountains. */
-function Mist({ terrain }: { terrain: Terrain }) {
-  const [geometry, material] = useMemo(() => {
+/**
+ * Banks of cloud over the mountains, built from many textured puffs. They sit
+ * above the treetops, drift slowly, and thicken and grey in the rainy months.
+ */
+function MountainClouds({ terrain, month }: { terrain: Terrain; month: number }) {
+  const banks = useMemo(() => {
     const random = mulberry32(101);
-    const positions: number[] = [];
-    const seeds: number[] = [];
-    for (let i = 0; positions.length < MIST_PATCHES * 3 && i < 200000; i++) {
+    const placed: { x: number; z: number; seed: number }[] = [];
+    for (let i = 0; placed.length < CLOUD_BANKS && i < 200000; i++) {
       const col = random() * terrain.width;
       const row = random() * terrain.height;
-      if (elevationAt(terrain, col, row) < 1000) continue;
+      if (elevationAt(terrain, col, row) < 1500) continue;
       const { x, z } = gridToWorld(terrain, col, row);
-      positions.push(x, 0.6 + random() * 1.6, z);
-      seeds.push(random());
+      if (placed.some((p) => Math.hypot(p.x - x, p.z - z) < CLOUD_SPACING)) continue;
+      placed.push({ x, z, seed: Math.floor(random() * 1000) });
     }
-    const g = new THREE.BufferGeometry();
-    g.setAttribute("position", new THREE.Float32BufferAttribute(positions, 3));
-    g.setAttribute("aSeed", new THREE.Float32BufferAttribute(seeds, 1));
-    const m = new THREE.ShaderMaterial({
-      uniforms: { uTime: time, uViewport: viewportHeight },
-      vertexShader: /* glsl */ `
-        uniform float uTime;
-        uniform float uViewport;
-        attribute float aSeed;
-        varying float vAlpha;
-        void main() {
-          vec3 p = position;
-          p.x += sin(uTime * 0.05 + aSeed * 30.0) * 1.2;
-          p.z += cos(uTime * 0.04 + aSeed * 20.0) * 0.6;
-          vAlpha = 0.5 + 0.5 * sin(uTime * 0.2 + aSeed * 12.0);
-          vec4 mv = modelViewMatrix * vec4(p, 1.0);
-          gl_Position = projectionMatrix * mv;
-          gl_PointSize = (2.5 + aSeed * 3.5) * projectionMatrix[1][1] * uViewport * 0.5 / -mv.z;
-        }`,
-      fragmentShader: /* glsl */ `
-        varying float vAlpha;
-        void main() {
-          float d = length(gl_PointCoord - 0.5) * 2.0;
-          float a = (1.0 - smoothstep(0.0, 1.0, d)) * 0.035 * vAlpha;
-          gl_FragColor = vec4(vec3(0.8, 0.84, 0.88), a);
-        }`,
-      transparent: true,
-      depthWrite: false,
-    });
-    return [g, m];
+    return placed;
   }, [terrain]);
-  return <points geometry={geometry} material={material} frustumCulled={false} renderOrder={2} />;
+  const group = useRef<THREE.Group>(null);
+  useFrame(() => {
+    if (!group.current) return; // still suspended on the texture
+    group.current.position.x = Math.sin(time.value * 0.03) * 1.5;
+    group.current.position.z = Math.cos(time.value * 0.02) * 0.8;
+  });
+  const rain = rainAt(month);
+  return (
+    <>
+      {/* Only the clouds use a lit material; everything else is unlit. */}
+      <hemisphereLight args={["#ffffff", "#2a3640", 1.5]} />
+      <directionalLight position={[-10, 20, 5]} intensity={1.3} />
+      <Suspense fallback={null}>
+        <Clouds ref={group} texture="/cloud.png" limit={CLOUD_BANKS * 18} material={THREE.MeshLambertMaterial}>
+          {banks.map((b) => (
+            <Cloud
+              key={b.seed}
+              seed={b.seed}
+              position={[b.x, 2.6, b.z]}
+              bounds={[2.4, 0.4, 1.6]}
+              segments={18}
+              volume={1.3}
+              smallestVolume={0.6}
+              growth={2}
+              speed={0.06}
+              concentrate="inside"
+              opacity={0.5 + 0.35 * rain}
+              color={rain > 0.5 ? "#aeb8bf" : "#ffffff"}
+            />
+          ))}
+        </Clouds>
+      </Suspense>
+    </>
+  );
 }
 
 /** Slanted streaks falling over the whole map, faded in by the month's rain. */
@@ -115,7 +124,7 @@ function Rain({ month, width, depth }: { month: number; width: number; depth: nu
 export function Weather({ terrain, month }: { terrain: Terrain; month: number }) {
   return (
     <>
-      <Mist terrain={terrain} />
+      <MountainClouds terrain={terrain} month={month} />
       <Rain month={month} width={terrain.width * 0.1} depth={terrain.height * 0.1} />
     </>
   );
